@@ -52,6 +52,7 @@ if (isset($_POST['submit'])) {
 	}
 
 	if (empty($errors)) {
+
 		$username = mysqli_real_escape_string($conn, trim($_POST['username']));
 		$email = mysqli_real_escape_string($conn, trim($_POST['email']));
 		$tel = mysqli_real_escape_string($conn, trim($_POST['tel']));
@@ -59,15 +60,38 @@ if (isset($_POST['submit'])) {
 
 		$hashed_password = password_hash($password, PASSWORD_DEFAULT);
 
-		$user_query = "INSERT INTO users (username, email, tel, password) VALUES ('$username', '$email', '$tel','$hashed_password')";
+		require_once("./functions/user_functions.php");
 
-		$user_result = mysqli_query($conn, $user_query);
+		if (checkUsernameExists($username)) {
+			// Username already exists...
+			echo "Username already exists!";
+		} else {
+			// The username does not exist... Continue...
+			if (checkEmailExists($email)) {
+				echo "Email address already exists!";
+			} else {
+				// Email does not exist... Continue...
 
-		if ($user_result) {
-			echo 'Registered Successfully!';
+				// loginUser($username, $password);
 
-			header('location: dashboard.php');
+				$user_query = "INSERT INTO users (username, email, tel, password) VALUES ('$username', '$email', '$tel','$hashed_password')";
+
+				$user_result = mysqli_query($conn, $user_query);
+
+				if ($user_result) {
+
+					// echo "Registration succesful";
+
+					loginUser($username, $password);
+
+					// header('location: dashboard.php');
+				}
+			}
+			
 		}
+		
+
+		
 
 
 	}else{
